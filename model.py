@@ -25,8 +25,12 @@ import numpy as np
 def row_sum(matrix):
     return np.sum(matrix, axis=1, keepdims=True)
 
-# Step 4 - exp_shifted (not yet solved)
-# TODO: implement
+# Step 4 - exp_shifted
+import numpy as np
+
+def exp_shifted(logits):
+    row_max = np.max(logits, axis=1, keepdims=True)
+    return np.exp(logits - row_max)
 
 # Step 5 - stable_softmax (not yet solved)
 # TODO: implement
