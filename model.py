@@ -65,8 +65,10 @@ labels = np.array([1, 0, 2])
 
 print(gather_true_class_probs(probs, labels))
 
-# Step 8 - cross_entropy_loss (not yet solved)
-# TODO: implement
+# Step 8 - cross_entropy_loss
+def cross_entropy_loss(probs, labels, eps=1e-12):
+    true_probs = gather_true_class_probs(probs, labels)
+    return -np.mean(np.log(true_probs + eps))
 
 # Step 9 - accuracy (not yet solved)
 # TODO: implement
