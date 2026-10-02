@@ -81,8 +81,19 @@ import math
 def he_std(fan_in):
     return math.sqrt(2 / fan_in)
 
-# Step 11 - he_init (not yet solved)
-# TODO: implement
+# Step 11 - he_init
+import numpy as np
+
+def he_std(fan_in):
+    return np.sqrt(2 / fan_in)
+
+def he_init(shape, fan_in, seed):
+    np.random.seed(seed)
+    return np.random.normal(
+        0.0,
+        he_std(fan_in),
+        size=shape
+    ).astype(np.float64)
 
 # Step 12 - init_zero_bias (not yet solved)
 # TODO: implement
