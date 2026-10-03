@@ -156,8 +156,58 @@ def im2col(images, kernel_h, kernel_w, stride, padding):
 
     return cols
 
-# Step 16 - col2im (not yet solved)
-# TODO: implement
+# Step 16 - col2im
+def col2im(cols, input_shape, kernel_h, kernel_w, stride, padding):
+    N, C, H, W = input_shape
+
+    # Calculate output spatial dimensions
+    out_h = output_spatial_size(H, kernel_h, stride, padding)
+    out_w = output_spatial_size(W, kernel_w, stride, padding)
+
+    # Create padded output
+    H_padded = H + 2 * padding
+    W_padded = W + 2 * padding
+
+    images_padded = np.zeros(
+        (N, C, H_padded, W_padded),
+        dtype=cols.dtype
+    )
+
+    # Reshape columns back into patches
+    cols = cols.reshape(
+        N,
+        out_h,
+        out_w,
+        C,
+        kernel_h,
+        kernel_w
+    )
+
+    # Put patches back into the image
+    for n in range(N):
+        for i in range(out_h):
+            for j in range(out_w):
+
+                h_start = i * stride
+                w_start = j * stride
+
+                images_padded[
+                    n,
+                    :,
+                    h_start:h_start + kernel_h,
+                    w_start:w_start + kernel_w
+                ] += cols[n, i, j]
+
+    # Remove padding
+    if padding > 0:
+        return images_padded[
+            :,
+            :,
+            padding:-padding,
+            padding:-padding
+        ]
+
+    return images_padded
 
 # Step 17 - conv2d_forward (not yet solved)
 # TODO: implement
