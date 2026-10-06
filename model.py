@@ -209,8 +209,60 @@ def col2im(cols, input_shape, kernel_h, kernel_w, stride, padding):
 
     return images_padded
 
-# Step 17 - conv2d_forward (not yet solved)
-# TODO: implement
+# Step 17 - conv2d_forward
+def conv2d_forward(x, weights, bias, stride, padding):
+    # Input shape
+    N, C_in, H, W = x.shape
+
+    # Kernel shape
+    C_out, _, K_h, K_w = weights.shape
+
+    # Calculate output spatial dimensions
+    H_out = (H + 2 * padding - K_h) // stride + 1
+    W_out = (W + 2 * padding - K_w) // stride + 1
+
+    # Convert image patches into rows
+    # Shape:
+    # (N * H_out * W_out, C_in * K_h * K_w)
+    cols = im2col(x, K_h, K_w, stride, padding)
+
+    # Flatten each filter
+    # (C_out, C_in, K_h, K_w)
+    #            ↓
+    # (C_out, C_in * K_h * K_w)
+    weights_col = weights.reshape(C_out, -1)
+
+    # Matrix multiplication
+    # cols:        (N*H_out*W_out, K)
+    # weights.T:   (K, C_out)
+    #
+    # result:      (N*H_out*W_out, C_out)
+    out = cols @ weights_col.T
+
+    # Add one bias value per output channel
+    out += bias
+
+    # Reshape back to image format
+    # (N*H_out*W_out, C_out)
+    #        ↓
+    # (N, H_out, W_out, C_out)
+    out = out.reshape(N, H_out, W_out, C_out)
+
+    # Convert NHWC → NCHW
+    out = out.transpose(0, 3, 1, 2)
+
+    # Cache everything required for backward pass
+    cache = {
+        "x_shape": x.shape,
+        "weights": weights,
+        "cols": cols,
+        "stride": stride,
+        "padding": padding,
+        "kernel_h": K_h,
+        "kernel_w": K_w,
+    }
+
+    return out, cache
 
 # Step 18 - conv2d_grad_input (not yet solved)
 # TODO: implement
