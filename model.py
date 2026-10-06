@@ -264,8 +264,51 @@ def conv2d_forward(x, weights, bias, stride, padding):
 
     return out, cache
 
-# Step 18 - conv2d_grad_input (not yet solved)
-# TODO: implement
+# Step 18 - conv2d_grad_input
+def conv2d_grad_input(d_out, cache):
+    # Retrieve cached values
+    weights = cache["weights"]
+    x_shape = cache["x_shape"]
+    stride = cache["stride"]
+    padding = cache["padding"]
+    kernel_h = cache["kernel_h"]
+    kernel_w = cache["kernel_w"]
+
+    N, C_in, H, W = x_shape
+    C_out = weights.shape[0]
+
+    # Convert d_out from:
+    # (N, C_out, H_out, W_out)
+    #
+    # to:
+    # (N * H_out * W_out, C_out)
+    d_out_rows = d_out.transpose(0, 2, 3, 1).reshape(-1, C_out)
+
+    # Flatten weights:
+    # (C_out, C_in, K_h, K_w)
+    #       ↓
+    # (C_out, C_in*K_h*K_w)
+    weights_col = weights.reshape(C_out, -1)
+
+    # Backpropagate through matrix multiplication
+    #
+    # d_out_rows: (num_patches, C_out)
+    # weights_col: (C_out, kernel_size)
+    #
+    # d_cols: (num_patches, kernel_size)
+    d_cols = d_out_rows @ weights_col
+
+    # Fold the columns back into the original image layout
+    dx = col2im(
+        d_cols,
+        x_shape,
+        kernel_h,
+        kernel_w,
+        stride,
+        padding
+    )
+
+    return dx
 
 # Step 19 - conv2d_grad_weights (not yet solved)
 # TODO: implement
